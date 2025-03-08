@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            /* background: white; */
+            background: linear-gradient(45deg, #1411eb, #b113d5c7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 63%;
+            margin-top: 20rem;
+        }
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            /* width: 100%; */
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+       
+
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .cancel{
+            width: 50%;
+    border-radius: 6px;
+    background-color: #f50a0aeb;
+    color: white;
+        }
+
+        
+        textarea {
+            height: 60px;
+            resize: none;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 50%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .but-col{
+            display: flex;
+            flex-direction: row;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Profile Setup</h2>
+        <label for="profilePicInput">
+            <img src="/static/images/pp.jpg" alt="Profile Picture" class="profile-pic" id="profilePic">
+        </label>
+        <input type="file" id="profilePicInput" accept="image/*" onchange="previewImage(event)">
+        <br>
+        <button class="upload-btn" onclick="document.getElementById('profilePicInput').click()">Choose Photo</button>
+
+        <form>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="skills">All Skills</label>
+                    <input type="text" id="skills" placeholder="Enter your skills">
+                </div>
+                <div class="form-group full-width">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" placeholder="Write a short bio..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="college">College Name</label>
+                    <input type="text" id="college" placeholder="Enter your college name">
+                </div>
+                <div class="form-group">
+                    <label for="program">Program</label>
+                    <input type="text" id="program" placeholder="Enter your program">
+                </div>
+                <div class="form-group">
+                    <label for="year">Year of Study</label>
+                    <input type="text" id="year" placeholder="Enter your year of study">
+                </div>
+                <div class="form-group">
+                    <label for="subjectTeach">Subject Willing to Teach</label>
+                    <input type="text" id="subjectTeach" placeholder="Enter subject willing to teach">
+                </div>
+                <div class="form-group">
+                    <label for="contact">Email/Contact</label>
+                    <input type="email" id="contact" placeholder="Enter your email or contact">
+                </div>
+                <div class="form-group">
+                    <label for="language">Languages Can Speak</label>
+                    <input type="text" id="language" placeholder="Enter languages you can speak">
+                </div>
+                <div class="form-group full-width">
+                    <label for="subjectLearn">Subject Wants to Learn</label>
+                    <input type="text" id="subjectLearn" placeholder="Enter subject you want to learn">
+                </div>
+            </div>
+            <div class="but-col">
+                <button type="submit" class="submit-btn">Save Profile</button>
+                <button type="submit" class="cancel">Cancel</button>
+            </div>
+        </form>
+
+    </div>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('profilePic').src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+
+</html>

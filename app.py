@@ -23,7 +23,9 @@ def get_db_connection():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    logged_in = session.get('logged_in', False)  # Ensure `logged_in` is always defined
+    username = session.get('user', 'Guest')  # Default username if not logged in
+    return render_template('home.html', logged_in=logged_in, username=username)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -56,6 +58,7 @@ def login():
 
         if user and check_password_hash(user['password'], password):
             session['user'] = username
+            session['logged_in'] = True  # Store login state
             
             # Store login event
             conn = get_db_connection()
@@ -63,12 +66,38 @@ def login():
             conn.commit()
             conn.close()
             
-            # return redirect(url_for('personhome'))
-            return render_template('personhome.html', sendname=username)
+            return render_template('profile.html', logged_in=True, username=username)
         else:
             return render_template('login.html', error="Invalid Credentials")
 
     return render_template('login.html')
+
+
+
+# def login():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+
+#         conn = get_db_connection()
+#         user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+#         conn.close()
+
+#         if user and check_password_hash(user['password'], password):
+#             session['user'] = username
+            
+#             # Store login event
+#             conn = get_db_connection()
+#             conn.execute("INSERT INTO login_activity (username) VALUES (?)", (username,))
+#             conn.commit()
+#             conn.close()
+            
+#             # return redirect(url_for('personhome'))
+#             return render_template('home.html')
+#         else:
+#             return render_template('login.html', error="Invalid Credentials")
+
+#     return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
