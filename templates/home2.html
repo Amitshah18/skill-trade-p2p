@@ -288,10 +288,6 @@
             font-weight: 600;
         }
 
-        .comm:hover{
-            background-color:  #f0f1f37d;
-        }
-
         .slide-head {
             display: flex;
             flex-direction: row;
@@ -338,6 +334,90 @@
         #sign-in-btn:hover{
             background-color:black;
         }
+
+
+        .profile-container {
+            position: relative;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #555;
+        }
+
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .dropdown.active {
+            display: block;
+        }
+        
+        .dropdown-user-info {
+            padding: 16px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .dropdown-user-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .dropdown-user-email {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .dropdown-menu {
+            list-style: none;
+        }
+        
+        .dropdown-menu-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: black;
+        }
+        
+        .dropdown-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .dropdown-menu-item i {
+            margin-right: 12px;
+            width: 16px;
+            text-align: center;
+            /* color: black; */
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: #eaeaea;
+            margin: 4px 0;
+        }
+
+
     </style>
 </head>
 
@@ -371,10 +451,34 @@
                 </div>
 
                 <!-- Sign In Button (Visible only when not logged in) -->
-                <button id="sign-in-btn" onclick="location.href='/signup'"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ">
-                    Sign In
-                </button>
+                
+
+
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">
+                        
+                        <img src="/static/images/pp.jpg" alt="img" width="40" height="40">
+                        
+                    </div>
+                    <div class="dropdown" id="profileDropdown">
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-user-name">dummy</div>
+                            <!-- <div class="dropdown-user-email"></div> -->
+                        </div>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-menu-item" onclick="window.location.href='/profile'">
+                                <i>👤</i> Edit Profile
+                            </li>
+                            <li class="dropdown-menu-item" onclick="window.location.href='/settings'">
+                                <i>⚙</i> Settings
+                            </li>
+                            <a href="{{ url_for('profile') }}" class="btn btn-primary">Edit Profile</a>
+                            <!-- <div class="dropdown-divider"></div> -->
+                            <li class="dropdown-menu-item" onclick="logout()">
+                                <i>🚪</i> Log out
+                            </li>
+                        </ul>
+                    </div>
             </div>
         </div>
     </nav>
@@ -395,34 +499,7 @@
         </div>
     </header>
 
-    <!-- Features Section -->
-    <!-- <section id="about" class="bg-gray-100 py-12">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-green-700 mb-6">Why Choose GreenBits?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-xl font-bold text-green-600 mb-2">For Individuals</h3>
-                    <p>
-                        Easily sell or donate your old electronics to trusted organizations and contribute to reducing
-                        e-waste.
-                    </p>
-                </div>
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-xl font-bold text-green-600 mb-2">For Organizations</h3>
-                    <p>
-                        Collect e-waste responsibly and streamline your recycling processes with the help of our
-                        platform.
-                    </p>
-                </div>
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-xl font-bold text-green-600 mb-2">Sustainability</h3>
-                    <p>
-                        Play a vital role in protecting the environment by minimizing e-waste and promoting reuse.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section> -->
+    
 
     <div class="feature-container">
         <div class="feature-box">
@@ -470,28 +547,28 @@
     <div class="slideshow-container">
         <a class="prev" onclick="changeSlides(-1)">&#10094;</a>
         <div class="slide fade">
-            <img src="/static/images/p1.jpg" alt="Slide 1">
+            <img src="/static/images/i.jpg" alt="Slide 1">
             </a>
         </div>
         <div class="slide fade">
 
-            <img src="/static/images/p2.jpg" alt="Slide 2">
+            <img src="/static/images/2.png" alt="Slide 2">
             </a>
         </div>
         <div class="slide fade">
 
-            <img src="/static/images/p3.jpg" alt="Slide 3">
+            <img src="/static/images/3.png" alt="Slide 3">
             </a>
         </div>
         <div class="slide fade">
 
-            <img src="/static/images/p4.jpg" alt="Slide 4">
+            <img src="/static/images/2.png" alt="Slide 4">
             </a>
         </div>
 
         <div class="slide fade">
 
-            <img src="/static/images/p5.jpg" alt="Slide 5">
+            <img src="/static/images/1.png" alt="Slide 5">
             </a>
         </div>
 
@@ -579,6 +656,22 @@
     </footer> -->
 
     <script>
+
+const profileAvatar = document.getElementById('profileAvatar');
+        const profileDropdown = document.getElementById('profileDropdown');
+        
+        profileAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (profileDropdown.classList.contains('active') && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('active');
+            }
+        });
+
         // Add interactivity here if needed
         function redirectToSignin() {
         window.location.href = "signup"; // Change this to your actual sign-in page URL

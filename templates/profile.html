@@ -12,12 +12,15 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            /* background-color: #f4f4f4; */
+            
         }
 
         .container {
             /* background: white; */
-            background: linear-gradient(45deg, #1411eb, #b113d5c7);
+            /* background: linear-gradient(45deg, #1411eb, #b113d5c7); */
+            /* background-image: url('static/images/background.png'); */
+            background: #7d757545;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -65,16 +68,7 @@
             border-radius: 5px;
         }
 
-        .submit-btn {
-            background: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+       
 
        
 
@@ -92,7 +86,7 @@
         }
 
         .upload-btn {
-            background: #007bff;
+            background: #0f172a;
             color: white;
             padding: 5px 10px;
             border: none;
@@ -116,12 +110,18 @@
             font-weight: bold;
         }
 
-        .cancel{
-            width: 50%;
-    border-radius: 6px;
-    background-color: #f50a0aeb;
+        .cancel {
+    width: 50%;
+    border-radius: 3px;
+    background-color: #ccc;
+    color: #0f172a;
+    border-color: white;
+}
+
+.cancel:hover{
+    background-color: red;
     color: white;
-        }
+}
 
         
         textarea {
@@ -134,14 +134,19 @@
         }
 
         .submit-btn {
-            background: #28a745;
+            background: #0F172A;;
             color: white;
             padding: 10px;
             border: none;
             width: 50%;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            /* margin-top: 10px; */
+        }
+
+        .submit-btn:hover{
+            background-color: green;
+            color:white;
         }
         .but-col{
             display: flex;

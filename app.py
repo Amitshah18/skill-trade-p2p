@@ -46,6 +46,12 @@ def signup():
 
     return render_template('signup.html')
 
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -66,7 +72,8 @@ def login():
             conn.commit()
             conn.close()
             
-            return render_template('profile.html', logged_in=True, username=username)
+            # return render_template('home2.html', logged_in=True, username=username)
+            return render_template('home2.html')
         else:
             return render_template('login.html', error="Invalid Credentials")
 
