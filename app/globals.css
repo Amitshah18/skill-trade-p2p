@@ -34,7 +34,13 @@
 
     --radius: 0.5rem;
   }
-
+  .cyber-badge {
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+  
+  .cyber-badge:hover {
+    transform: scale(1.05);
+  }
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
