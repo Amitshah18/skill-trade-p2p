@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,9 +10,12 @@ import { CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { AlertCircle, Mail, Lock, Wallet, Check, ChevronRight } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
+import { checkIsLoggedIn, setFullLoginState } from "@/lib/auth"
 
 export default function LoginPage() {
   const router = useRouter()
+  const isInitialMount = useRef(true)
+  const [mounted, setMounted] = useState(false)
 
   // Form states
   const [email, setEmail] = useState("")
@@ -31,13 +34,26 @@ export default function LoginPage() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [walletConnected, setWalletConnected] = useState(false)
 
-  // Check if MetaMask is installed
+  // Safe initialization
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsMetaMaskInstalled(!!window.ethereum && window.ethereum.isMetaMask)
-    }
-  }, [])
+    setMounted(true)
 
+    // Check if user is already logged in - only on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+
+      if (checkIsLoggedIn()) {
+        router.push("/dashboard")
+      }
+    }
+
+    // Check if MetaMask is installed
+    if (typeof window !== "undefined" && window.ethereum) {
+      setIsMetaMaskInstalled(window.ethereum.isMetaMask)
+    }
+  }, [router])
+
+  // Update the handleCredentialsSubmit function to store user data in localStorage
   const handleCredentialsSubmit = async (e) => {
     e.preventDefault()
 
@@ -50,26 +66,24 @@ export default function LoginPage() {
       setIsLoading(true)
       setError("")
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // For demo purposes, we'll simulate a successful login
+      // In a real app, you would make an API call here
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // For demo purposes, let's use a simple validation
-      if (email === "demo@example.com" && password === "password") {
-        setCredentialsValid(true)
-        setStep(2) // Move to wallet connection step
-      } else {
-        setError("Invalid email or password")
-      }
+      // Move to wallet connection step
+      setCredentialsValid(true)
+      setStep(2)
     } catch (err) {
-      setError("An error occurred. Please try again.")
-      console.error(err)
+      console.error("Login Error:", err)
+      setError(err.message || "Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
   }
 
+  // Update the connectWallet function to use the new setFullLoginState function
   const connectWallet = async () => {
-    if (!isMetaMaskInstalled) {
+    if (!isMetaMaskInstalled || !window.ethereum) {
       window.open("https://metamask.io/download/", "_blank")
       return
     }
@@ -88,11 +102,28 @@ export default function LoginPage() {
       setWalletAddress(accounts[0])
       setWalletConnected(true)
 
-      // Simulate verification
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Generate a mock auth token
+      const mockToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 
-      // Redirect after successful connection
-      router.push("/dashboard")
+      // Create mock user data
+      const user = {
+        name: "Demo User",
+        email: email,
+        walletAddress: accounts[0],
+        skills: ["JavaScript", "React"],
+        interests: ["Blockchain", "Web Development"],
+        image: "/placeholder.svg?height=100&width=100",
+        initials: "DU",
+        lastLogin: new Date().toISOString(),
+      }
+
+      // Use the new function to set all auth data at once
+      setFullLoginState(user, mockToken)
+
+      // Use a longer timeout and window.location for a full page reload
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 500)
     } catch (err) {
       if (err.code === 4001) {
         // User rejected the request
@@ -104,6 +135,11 @@ export default function LoginPage() {
     } finally {
       setIsConnecting(false)
     }
+  }
+
+  // Don't render until client-side hydration is complete
+  if (!mounted) {
+    return null
   }
 
   return (
