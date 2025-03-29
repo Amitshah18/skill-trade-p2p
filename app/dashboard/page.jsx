@@ -1,368 +1,356 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import {
-  BookOpen,
-  Briefcase,
-  Calendar,
-  Clock,
-  FileText,
-  MessageSquare,
-  Users,
-  Wallet,
-  ChevronRight,
-  Plus,
-} from "lucide-react"
+import { useEffect, useState, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { CalendarIcon, BookOpenIcon, MessageSquareIcon, TrendingUpIcon, VideoIcon, SearchIcon } from "lucide-react"
+import { checkIsLoggedIn, getUserData, logout, isSessionValid, updateLastActivity } from "@/lib/auth"
 
-export default function DashboardPage() {
-  const [user, setUser] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    walletAddress: "0x1234...5678",
-    balance: 125,
-    skills: ["JavaScript", "React", "Node.js"],
-    interests: ["Blockchain", "Solidity", "UI/UX Design"],
-    profileImage: "/placeholder.svg?height=100&width=100",
-  })
+export default function Dashboard() {
+  const router = useRouter()
+  const isInitialMount = useRef(true)
+  const [mounted, setMounted] = useState(false)
+  const [userData, setUserData] = useState(null)
+  const [upcomingSessions, setUpcomingSessions] = useState([])
+  const [recentMessages, setRecentMessages] = useState([])
+  const [recommendedSkills, setRecommendedSkills] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [upcomingSessions, setUpcomingSessions] = useState([
-    {
-      id: 1,
-      title: "Introduction to React Hooks",
-      teacher: "Sarah Johnson",
-      date: "2025-03-20T14:00:00",
-      duration: 60,
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      title: "Blockchain Fundamentals",
-      teacher: "Michael Chen",
-      date: "2025-03-22T10:00:00",
-      duration: 90,
-      status: "pending",
-    },
-  ])
+  useEffect(() => {
+    setMounted(true)
 
-  const [teachingSessions, setTeachingSessions] = useState([
-    {
-      id: 3,
-      title: "JavaScript Basics",
-      student: "Emma Wilson",
-      date: "2025-03-21T15:30:00",
-      duration: 45,
-      status: "confirmed",
-    },
-  ])
+    // Check if user is logged in - only on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false
 
-  const [contracts, setContracts] = useState([
-    {
-      id: 1,
-      title: "React Hooks Training",
-      with: "Sarah Johnson",
-      date: "2025-03-20",
-      status: "active",
-      contractAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    },
-    {
-      id: 2,
-      title: "JavaScript Tutoring",
-      with: "Emma Wilson",
-      date: "2025-03-21",
-      status: "pending",
-      contractAddress: null,
-    },
-  ])
+      const checkAuth = () => {
+        // Check both login status and session validity
+        const loggedIn = checkIsLoggedIn()
+        const sessionValid = isSessionValid()
 
+        if (!loggedIn || !sessionValid) {
+          // Clear any stale data and redirect to login
+          logout()
+          // Use window.location for a full page reload
+          window.location.href = "/login"
+          return false
+        }
+
+        // Get user data
+        const user = getUserData()
+        if (user) {
+          setUserData(user)
+          // Update last activity timestamp
+          updateLastActivity()
+          return true
+        } else {
+          // If we have isLoggedIn=true but no user data, something's wrong
+          logout()
+          window.location.href = "/login"
+          return false
+        }
+      }
+
+      // Only proceed with loading data if auth check passes
+      const authValid = checkAuth()
+      if (!authValid) return
+
+      // Mock data for dashboard - only set if auth is valid
+      setUpcomingSessions([
+        {
+          id: 1,
+          title: "JavaScript Basics",
+          teacher: "Alex Johnson",
+          date: "2025-03-25T14:00:00",
+          status: "confirmed",
+        },
+        {
+          id: 2,
+          title: "React Hooks Deep Dive",
+          teacher: "Sarah Miller",
+          date: "2025-03-27T10:30:00",
+          status: "pending",
+        },
+      ])
+
+      setRecentMessages([
+        { id: 1, from: "Alex Johnson", message: "Looking forward to our session!", time: "2 hours ago", unread: true },
+        { id: 2, from: "Support Team", message: "Your account has been verified", time: "1 day ago", unread: false },
+      ])
+
+      setRecommendedSkills([
+        { id: 1, name: "Python Programming", popularity: "High", matchScore: 95 },
+        { id: 2, name: "UI/UX Design", popularity: "Medium", matchScore: 88 },
+        { id: 3, name: "Data Analysis", popularity: "High", matchScore: 82 },
+      ])
+
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Function to get user's first name
+  const getFirstName = () => {
+    if (!userData || !userData.name) return ""
+    return userData.name.split(" ")[0]
+  }
+
+  // Function to format date
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }
+    const options = {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
     return new Date(dateString).toLocaleDateString("en-US", options)
   }
 
+  // Handle navigation without causing auth loops
+  const handleNavigation = (path) => {
+    // Update activity timestamp before navigation
+    updateLastActivity()
+    router.push(path)
+  }
+
+  // Don't render until client-side hydration is complete
+  if (!mounted) {
+    return null
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-10">
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Welcome Section */}
+        <div className="flex items-center mb-8">
+          <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xl font-bold text-white">
+            {userData?.initials || "U"}
+          </div>
+          <div className="ml-4">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+              Welcome back, {getFirstName()}!
+            </h1>
+            <p className="text-gray-400">Ready to continue your skill trading journey?</p>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-8">
+          <input
+            type="text"
+            placeholder="Search for skills, teachers, or topics..."
+            className="w-full bg-gray-900 border border-gray-700 rounded-full py-3 px-6 pl-12 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <SearchIcon className="absolute left-4 top-3.5 text-gray-500 w-5 h-5" />
+        </div>
+
+        {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* User Profile Card */}
-          <Card className="cyber-card md:col-span-1">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-600/30 mb-4 cyber-avatar">
-                  <img
-                    src={user.profileImage || "/placeholder.svg"}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-1">{user.name}</h2>
-                <p className="text-sm text-gray-400 mb-4">{user.email}</p>
-
-                <div className="w-full p-3 rounded-lg bg-gray-900/50 border border-gray-800 mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-400">Wallet</span>
-                    <Badge variant="outline" className="bg-blue-900/30 border-blue-700/30 text-blue-400">
-                      Connected
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 truncate max-w-[120px]">{user.walletAddress}</span>
-                    <div className="flex items-center">
-                      <Wallet className="h-4 w-4 text-blue-400 mr-1" />
-                      <span className="text-sm font-medium text-white">{user.balance} SKT</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full space-y-3">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-300 mb-2">My Skills</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {user.skills.map((skill, index) => (
-                        <Badge key={index} className="bg-blue-600/20 text-blue-400 border-blue-700/30">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-300 mb-2">My Interests</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {user.interests.map((interest, index) => (
-                        <Badge key={index} className="bg-pink-600/20 text-pink-400 border-pink-700/30">
-                          {interest}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Main Dashboard Content */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-white neon-text-blue">Dashboard</h1>
-              <Button className="cyber-button rounded-md">
-                <Wallet className="mr-2 h-4 w-4" />
-                Buy Tokens
-              </Button>
+          {/* Upcoming Sessions */}
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <div className="flex items-center mb-4">
+              <CalendarIcon className="text-purple-500 mr-2" />
+              <h2 className="text-xl font-bold">Upcoming Sessions</h2>
             </div>
 
-            <Tabs defaultValue="upcoming" className="w-full">
-              <TabsList className="cyber-tabs mb-4">
-                <TabsTrigger value="upcoming" className="data-[state=active]:cyber-tab-active">
-                  Upcoming Sessions
-                </TabsTrigger>
-                <TabsTrigger value="teaching" className="data-[state=active]:cyber-tab-active">
-                  Teaching
-                </TabsTrigger>
-                <TabsTrigger value="contracts" className="data-[state=active]:cyber-tab-active">
-                  Contracts
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="upcoming" className="space-y-4">
-                {upcomingSessions.length > 0 ? (
-                  upcomingSessions.map((session) => (
-                    <Card key={session.id} className="cyber-card overflow-hidden">
-                      <CardContent className="p-0">
-                        <div className="flex flex-col md:flex-row">
-                          <div
-                            className={`w-full md:w-2 ${session.status === "confirmed" ? "bg-green-500" : "bg-yellow-500"}`}
-                          ></div>
-                          <div className="p-4 flex-1">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                              <h3 className="text-lg font-medium text-white">{session.title}</h3>
-                              <Badge
-                                className={
-                                  session.status === "confirmed"
-                                    ? "bg-green-900/30 text-green-400 border-green-700/30"
-                                    : "bg-yellow-900/30 text-yellow-400 border-yellow-700/30"
-                                }
-                              >
-                                {session.status === "confirmed" ? "Confirmed" : "Pending"}
-                              </Badge>
-                            </div>
-                            <div className="flex flex-col md:flex-row md:items-center text-sm text-gray-400 mb-3">
-                              <div className="flex items-center mr-4">
-                                <Users className="h-4 w-4 mr-1 text-blue-400" />
-                                <span>Teacher: {session.teacher}</span>
-                              </div>
-                              <div className="flex items-center mr-4">
-                                <Calendar className="h-4 w-4 mr-1 text-blue-400" />
-                                <span>{formatDate(session.date)}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-1 text-blue-400" />
-                                <span>{session.duration} minutes</span>
-                              </div>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button variant="outline" size="sm" className="cyber-button-outline">
-                                <MessageSquare className="h-4 w-4 mr-1" />
-                                Message
-                              </Button>
-                              <Button size="sm" className="cyber-button">
-                                Join Session
-                                <ChevronRight className="h-4 w-4 ml-1" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-10">
-                    <BookOpen className="h-12 w-12 mx-auto text-gray-600 mb-3" />
-                    <h3 className="text-lg font-medium text-white mb-1">No upcoming sessions</h3>
-                    <p className="text-sm text-gray-400 mb-4">You don't have any learning sessions scheduled.</p>
-                    <Button className="cyber-button rounded-md">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Book a Session
-                    </Button>
+            {upcomingSessions.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingSessions.map((session) => (
+                  <div key={session.id} className="bg-gray-800 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold">{session.title}</h3>
+                        <p className="text-sm text-gray-400">with {session.teacher}</p>
+                        <p className="text-sm text-gray-400 mt-1">{formatDate(session.date)}</p>
+                      </div>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          session.status === "confirmed"
+                            ? "bg-green-900 text-green-400"
+                            : "bg-yellow-900 text-yellow-400"
+                        }`}
+                      >
+                        {session.status === "confirmed" ? "Confirmed" : "Pending"}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex space-x-2">
+                      <button
+                        onClick={() => handleNavigation(`/video-call/${session.id}`)}
+                        className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1.5 rounded-md transition duration-300"
+                      >
+                        <VideoIcon className="w-4 h-4 mr-1" />
+                        Join
+                      </button>
+                      <button
+                        onClick={() => handleNavigation(`/chat/${session.id}`)}
+                        className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white text-sm px-3 py-1.5 rounded-md transition duration-300"
+                      >
+                        <MessageSquareIcon className="w-4 h-4 mr-1" />
+                        Chat
+                      </button>
+                    </div>
                   </div>
-                )}
-              </TabsContent>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No upcoming sessions</p>
+            )}
 
-              <TabsContent value="teaching" className="space-y-4">
-                {teachingSessions.length > 0 ? (
-                  teachingSessions.map((session) => (
-                    <Card key={session.id} className="cyber-card overflow-hidden">
-                      <CardContent className="p-0">
-                        <div className="flex flex-col md:flex-row">
-                          <div
-                            className={`w-full md:w-2 ${session.status === "confirmed" ? "bg-green-500" : "bg-yellow-500"}`}
-                          ></div>
-                          <div className="p-4 flex-1">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                              <h3 className="text-lg font-medium text-white">{session.title}</h3>
-                              <Badge
-                                className={
-                                  session.status === "confirmed"
-                                    ? "bg-green-900/30 text-green-400 border-green-700/30"
-                                    : "bg-yellow-900/30 text-yellow-400 border-yellow-700/30"
-                                }
-                              >
-                                {session.status === "confirmed" ? "Confirmed" : "Pending"}
-                              </Badge>
-                            </div>
-                            <div className="flex flex-col md:flex-row md:items-center text-sm text-gray-400 mb-3">
-                              <div className="flex items-center mr-4">
-                                <Users className="h-4 w-4 mr-1 text-pink-400" />
-                                <span>Student: {session.student}</span>
-                              </div>
-                              <div className="flex items-center mr-4">
-                                <Calendar className="h-4 w-4 mr-1 text-pink-400" />
-                                <span>{formatDate(session.date)}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-1 text-pink-400" />
-                                <span>{session.duration} minutes</span>
-                              </div>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button variant="outline" size="sm" className="cyber-button-outline">
-                                <MessageSquare className="h-4 w-4 mr-1" />
-                                Message
-                              </Button>
-                              <Button size="sm" className="cyber-button">
-                                Start Session
-                                <ChevronRight className="h-4 w-4 ml-1" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-10">
-                    <Briefcase className="h-12 w-12 mx-auto text-gray-600 mb-3" />
-                    <h3 className="text-lg font-medium text-white mb-1">No teaching sessions</h3>
-                    <p className="text-sm text-gray-400 mb-4">You don't have any teaching sessions scheduled.</p>
-                    <Button className="cyber-button rounded-md">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Offer Your Skills
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="contracts" className="space-y-4">
-                {contracts.length > 0 ? (
-                  contracts.map((contract) => (
-                    <Card key={contract.id} className="cyber-card overflow-hidden">
-                      <CardContent className="p-0">
-                        <div className="flex flex-col md:flex-row">
-                          <div
-                            className={`w-full md:w-2 ${contract.status === "active" ? "bg-blue-500" : "bg-yellow-500"}`}
-                          ></div>
-                          <div className="p-4 flex-1">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                              <h3 className="text-lg font-medium text-white">{contract.title}</h3>
-                              <Badge
-                                className={
-                                  contract.status === "active"
-                                    ? "bg-blue-900/30 text-blue-400 border-blue-700/30"
-                                    : "bg-yellow-900/30 text-yellow-400 border-yellow-700/30"
-                                }
-                              >
-                                {contract.status === "active" ? "Active" : "Pending"}
-                              </Badge>
-                            </div>
-                            <div className="flex flex-col md:flex-row md:items-center text-sm text-gray-400 mb-3">
-                              <div className="flex items-center mr-4">
-                                <Users className="h-4 w-4 mr-1 text-blue-400" />
-                                <span>With: {contract.with}</span>
-                              </div>
-                              <div className="flex items-center mr-4">
-                                <Calendar className="h-4 w-4 mr-1 text-blue-400" />
-                                <span>Created: {contract.date}</span>
-                              </div>
-                              {contract.contractAddress && (
-                                <div className="flex items-center">
-                                  <FileText className="h-4 w-4 mr-1 text-blue-400" />
-                                  <span className="truncate max-w-[150px]">
-                                    {contract.contractAddress.slice(0, 6)}...{contract.contractAddress.slice(-4)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              {contract.status === "pending" ? (
-                                <Button size="sm" className="cyber-button">
-                                  Generate Contract
-                                  <ChevronRight className="h-4 w-4 ml-1" />
-                                </Button>
-                              ) : (
-                                <Button size="sm" className="cyber-button">
-                                  View Contract
-                                  <ChevronRight className="h-4 w-4 ml-1" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-10">
-                    <FileText className="h-12 w-12 mx-auto text-gray-600 mb-3" />
-                    <h3 className="text-lg font-medium text-white mb-1">No contracts</h3>
-                    <p className="text-sm text-gray-400 mb-4">You don't have any active or pending contracts.</p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+            <button
+              onClick={() => handleNavigation("/sessions")}
+              className="w-full mt-4 text-center text-sm text-purple-400 hover:text-purple-300"
+            >
+              View all sessions
+            </button>
           </div>
+
+          {/* Recent Messages */}
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <div className="flex items-center mb-4">
+              <MessageSquareIcon className="text-purple-500 mr-2" />
+              <h2 className="text-xl font-bold">Recent Messages</h2>
+            </div>
+
+            {recentMessages.length > 0 ? (
+              <div className="space-y-3">
+                {recentMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className="flex items-start p-3 rounded-lg hover:bg-gray-800 transition duration-150 cursor-pointer"
+                    onClick={() => handleNavigation(`/messages/${msg.id}`)}
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white">
+                        {msg.from.charAt(0)}
+                      </div>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <div className="flex justify-between">
+                        <p className="font-medium">{msg.from}</p>
+                        <span className="text-xs text-gray-500">{msg.time}</span>
+                      </div>
+                      <p className="text-sm text-gray-400 truncate">{msg.message}</p>
+                    </div>
+                    {msg.unread && <span className="w-2 h-2 bg-purple-500 rounded-full"></span>}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No recent messages</p>
+            )}
+
+            <button
+              onClick={() => handleNavigation("/messages")}
+              className="w-full mt-4 text-center text-sm text-purple-400 hover:text-purple-300"
+            >
+              View all messages
+            </button>
+          </div>
+
+          {/* Recommended Skills */}
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <div className="flex items-center mb-4">
+              <TrendingUpIcon className="text-purple-500 mr-2" />
+              <h2 className="text-xl font-bold">Recommended for You</h2>
+            </div>
+
+            {recommendedSkills.length > 0 ? (
+              <div className="space-y-3">
+                {recommendedSkills.map((skill) => (
+                  <div
+                    key={skill.id}
+                    className="bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-750 transition duration-150"
+                    onClick={() => handleNavigation(`/skill/${skill.id}`)}
+                  >
+                    <div className="flex justify-between">
+                      <h3 className="font-semibold">{skill.name}</h3>
+                      <span className="text-xs px-2 py-1 rounded-full bg-purple-900 text-purple-400">
+                        {skill.matchScore}% Match
+                      </span>
+                    </div>
+                    <div className="flex items-center mt-2">
+                      <span className="text-xs text-gray-400 mr-2">Popularity:</span>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${
+                          skill.popularity === "High"
+                            ? "bg-green-900 text-green-400"
+                            : skill.popularity === "Medium"
+                              ? "bg-yellow-900 text-yellow-400"
+                              : "bg-blue-900 text-blue-400"
+                        }`}
+                      >
+                        {skill.popularity}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">No recommendations yet</p>
+            )}
+
+            <button
+              onClick={() => handleNavigation("/explore")}
+              className="w-full mt-4 text-center text-sm text-purple-400 hover:text-purple-300"
+            >
+              Explore more skills
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={() => handleNavigation("/explore")}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl p-4 flex flex-col items-center justify-center transition duration-300"
+          >
+            <SearchIcon className="w-6 h-6 mb-2" />
+            <span>Find Skills</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/teach")}
+            className="bg-gray-800 hover:bg-gray-700 text-white rounded-xl p-4 flex flex-col items-center justify-center transition duration-300"
+          >
+            <BookOpenIcon className="w-6 h-6 mb-2" />
+            <span>Teach a Skill</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/sessions")}
+            className="bg-gray-800 hover:bg-gray-700 text-white rounded-xl p-4 flex flex-col items-center justify-center transition duration-300"
+          >
+            <CalendarIcon className="w-6 h-6 mb-2" />
+            <span>My Sessions</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/wallet")}
+            className="bg-gray-800 hover:bg-gray-700 text-white rounded-xl p-4 flex flex-col items-center justify-center transition duration-300"
+          >
+            <svg
+              className="w-6 h-6 mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+            <span>My Wallet</span>
+          </button>
         </div>
       </div>
     </div>
