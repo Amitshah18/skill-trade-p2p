@@ -3,6 +3,7 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 const { ExpressPeerServer } = require("peer");
+const aiRoutes = require("./routes/aiRoutes");
 const connectDB = require("./config/db");
 require("dotenv").config();
 
@@ -12,7 +13,7 @@ if (!process.env.MONGO_URI) {
 } else {
   console.log("🔍 MONGO_URI from .env:", process.env.MONGO_URI);
 }
-
+app.use("/api/ai", aiRoutes);
 // Initialize Express
 const app = express();
 const server = http.createServer(app); // ✅ Create HTTP server
