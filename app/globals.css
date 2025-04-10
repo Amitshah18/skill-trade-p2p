@@ -5,13 +5,13 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222.2 47.4% 11.2%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222.2 47.4% 11.2%;
 
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
@@ -30,26 +30,21 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
+
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
   }
-  .cyber-badge {
-    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-  }
-  
-  .cyber-badge:hover {
-    transform: scale(1.05);
-  }
+
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
 
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -58,17 +53,20 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 210 40% 98%;
+    --destructive-foreground: 222.2 47.4% 11.2%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --ring: 224 71% 4%;
+
+    --radius: 0.5rem;
   }
 }
 
@@ -77,40 +75,200 @@
     @apply border-border;
   }
   body {
-    @apply bg-black text-foreground;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+/* ===== Custom Classes ===== */
 
-  ::-webkit-scrollbar-track {
-    background: rgba(15, 15, 15, 0.8);
-  }
+/* === Avatars === */
+.cyber-avatar {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #3b82f6, #ec4899);
-    border-radius: 4px;
-  }
+/* === Buttons === */
+.cyber-button {
+  @apply font-semibold text-sm transition-colors duration-200;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #2563eb, #db2777);
+.cyber-button-enhanced {
+  @apply bg-gradient-to-r from-blue-600 to-pink-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40;
+}
+
+/* === Cyber Badges === */
+.cyber-badge {
+  @apply border rounded-full py-1 px-3 font-medium text-xs;
+}
+
+/* === Cards === */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cyber-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(10, 10, 20, 0.7);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cyber-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* === Checkbox === */
+.cyber-checkbox {
+  @apply bg-gray-800 text-gray-100 rounded-md shadow-inner focus:ring-blue-500;
+}
+
+/* === Input === */
+.cyber-input {
+  @apply block w-full rounded-md shadow-sm text-white bg-gray-800 border-gray-700 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* === Progress === */
+.cyber-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cyber-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(to right, #4f46e5, #e91e63);
+  border-radius: 10px;
+  transition: width 0.4s ease-in-out;
+}
+
+/* === Tabs === */
+.cyber-tab {
+  border-radius: 6px;
+  padding: 8px 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+.cyber-tab-active {
+  background-color: rgba(100, 116, 139, 0.5);
+  border: 1px solid #4f46e5;
+}
+
+/* === Text Gradients === */
+.gradient-text-blue-pink {
+  background: linear-gradient(to right, #6366f1, #e91e63);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* === Text Effects === */
+.neon-text-blue {
+  text-shadow: 0 0 5px #007bff, 0 0 10px #007bff, 0 0 20px #007bff;
+}
+
+.neon-text-pink {
+  text-shadow: 0 0 5px #e91e63, 0 0 10px #e91e63, 0 0 20px #e91e63;
+}
+
+/* === Upload === */
+.cyber-upload {
+  border: 2px dashed #4f46e5;
+  background-color: rgba(10, 10, 20, 0.5);
+  color: #9ca3af;
+}
+
+/* === Layout: Cyberpunk Grid === */
+.cyber-grid {
+  background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.0) 70%);
+  background-size: 20px 20px, 20px 20px, 100% 100%;
+  z-index: 0;
+}
+
+/* Enhanced cyber grid with blocks */
+.cyber-grid-blocks {
+  background-color: rgba(0, 0, 0, 0.8);
+  background-image: linear-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.15) 1px, transparent 1px),
+    linear-gradient(rgba(236, 72, 153, 0.1) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  z-index: 0;
+}
+
+/* Digital circuit pattern */
+.digital-circuit {
+  background-color: #000;
+  background-image: radial-gradient(rgba(59, 130, 246, 0.3) 2px, transparent 2px),
+    linear-gradient(rgba(59, 130, 246, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.2) 1px, transparent 1px),
+    linear-gradient(rgba(236, 72, 153, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px, 10px 10px, 10px 10px, 50px 50px, 50px 50px;
+  background-position: 0 0, 0 0, 0 0, 5px 5px, 5px 5px;
+}
+
+/* === Floating Particles === */
+.particle {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float 4s linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
   }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 15, 15, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #3b82f6, #ec4899);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #2563eb, #db2777);
 }
 
 /* Custom Cyberpunk/Futuristic UI System */
 
 /* Neon text effects */
 .neon-text-blue {
-  color: #fff;
-  text-shadow: 0 0 5px rgba(59, 130, 246, 0.7), 0 0 10px rgba(59, 130, 246, 0.5), 0 0 15px rgba(59, 130, 246, 0.3);
+  text-shadow: 0 0 5px #007bff, 0 0 10px #007bff, 0 0 20px #007bff;
 }
 
 .neon-text-pink {
-  color: #fff;
-  text-shadow: 0 0 5px rgba(236, 72, 153, 0.7), 0 0 10px rgba(236, 72, 153, 0.5), 0 0 15px rgba(236, 72, 153, 0.3);
+  text-shadow: 0 0 5px #e91e63, 0 0 10px #e91e63, 0 0 20px #e91e63;
 }
 
 .neon-text-purple {
@@ -120,10 +278,9 @@
 
 /* Gradient text */
 .gradient-text-blue-pink {
-  background-clip: text;
+  background: linear-gradient(to right, #6366f1, #e91e63);
   -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to right, #3b82f6, #ec4899);
+  -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-purple-pink {
@@ -196,10 +353,10 @@
 
 /* Glass morphism */
 .glass-card {
-  background: rgba(10, 10, 15, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-card-dark {
@@ -209,11 +366,10 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Glass nav effect */
 .glass-nav {
-  background: rgba(5, 5, 10, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(10, 10, 20, 0.7);
+  backdrop-filter: blur(10px);
 }
 
 /* Animated background */
@@ -232,13 +388,6 @@
   100% {
     background-position: 0% 50%;
   }
-}
-
-/* Cyberpunk grid background */
-.cyber-grid {
-  background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
 }
 
 /* Glossy black background and cards */
@@ -310,54 +459,41 @@
 
 /* Futuristic button styles */
 .cyber-button {
-  position: relative;
-  overflow: hidden;
+  @apply font-semibold text-sm transition-colors duration-200;
+  background-color: rgba(66, 153, 225, 0.1);
+  border: 1px solid rgba(66, 153, 225, 0.3);
+  color: white;
   transition: all 0.3s ease;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  background: rgba(10, 10, 20, 0.8);
-  z-index: 1;
-}
-
-.cyber-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, #3b82f6, #ec4899);
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-}
-
-.cyber-button:hover::before {
-  opacity: 1;
 }
 
 .cyber-button:hover {
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.3);
-  border-color: rgba(236, 72, 153, 0.5);
+  background-color: rgba(66, 153, 225, 0.2);
+  border-color: rgba(66, 153, 225, 0.5);
+  box-shadow: 0 0 10px rgba(66, 153, 225, 0.3);
 }
 
-/* Enhanced button styles for better visibility */
 .cyber-button-enhanced {
-  background: linear-gradient(45deg, #3b82f6, #ec4899);
+  @apply bg-gradient-to-r from-blue-600 to-pink-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40;
+  background: linear-gradient(to right, rgba(66, 153, 225, 0.8), rgba(236, 72, 153, 0.8));
+  border: 1px solid rgba(66, 153, 225, 0.5);
   color: white;
-  font-weight: 500;
-  border: none;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.3);
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   transition: all 0.3s ease;
 }
 
 .cyber-button-enhanced:hover {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.4);
-  transform: translateY(-2px);
+  background: linear-gradient(to right, rgba(66, 153, 225, 1), rgba(236, 72, 153, 1));
+  box-shadow: 0 0 15px rgba(66, 153, 225, 0.5);
+}
+
+.cyber-button-outline {
+  background-color: transparent;
+  border: 1px solid rgba(66, 153, 225, 0.3);
+  color: rgba(66, 153, 225, 0.8);
 }
 
 /* Futuristic input styles */
 .cyber-input {
+  @apply block w-full rounded-md shadow-sm text-white bg-gray-800 border-gray-700 focus:ring-blue-500 focus:border-blue-500;
   background: rgba(15, 15, 25, 0.6);
   border: 1px solid rgba(59, 130, 246, 0.3);
   color: white;
@@ -398,12 +534,17 @@
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
-/* Cyberpunk card */
+/* Cyber card styles */
 .cyber-card {
-  position: relative;
-  background: linear-gradient(145deg, rgba(15, 15, 25, 0.6), rgba(10, 10, 20, 0.8));
-  border-radius: 8px;
-  padding: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(10, 10, 20, 0.7);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(17, 17, 27, 0.7);
+  border: 1px solid rgba(66, 153, 225, 0.2);
+  box-shadow: 0 0 15px rgba(66, 153, 225, 0.1);
+  border-radius: 0.5rem;
   overflow: hidden;
 }
 
@@ -418,7 +559,7 @@
 }
 
 .cyber-card-content {
-  background: rgba(15, 15, 25, 0.9);
+  background-color: rgba(17, 17, 27, 0.7);
   border-radius: 7px;
   height: 100%;
   width: 100%;
@@ -450,58 +591,63 @@
 /* Particle background */
 .particle {
   position: absolute;
+  background-color: white;
   border-radius: 50%;
-  background: white;
-  opacity: 0.5;
-  animation: float 15s infinite ease-in-out;
+  opacity: 0.3;
+  animation: float 4s linear infinite;
 }
 
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) translateX(0);
-  }
-  25% {
-    transform: translateY(-30px) translateX(15px);
+  0% {
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-15px) translateX(30px);
+    transform: translateY(-10px);
   }
-  75% {
-    transform: translateY(-30px) translateX(15px);
+  100% {
+    transform: translateY(0);
   }
 }
 
 /* Futuristic progress bar */
 .cyber-progress {
-  height: 4px;
-  background: rgba(30, 30, 40, 0.5);
-  border-radius: 2px;
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .cyber-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #ec4899);
-  border-radius: 2px;
-  transition: width 0.3s ease;
+  background: linear-gradient(to right, #4f46e5, #e91e63);
+  border-radius: 10px;
+  transition: width 0.4s ease-in-out;
 }
 
 /* Futuristic badge */
 .cyber-badge {
+  @apply border rounded-full py-1 px-3 font-medium text-xs;
   background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), rgba(236, 72, 153, 0.2));
   border: 1px solid rgba(59, 130, 246, 0.3);
   color: white;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .cyber-badge:hover {
   background: linear-gradient(45deg, rgba(59, 130, 246, 0.4), rgba(236, 72, 153, 0.4));
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  transform: scale(1.05);
 }
 
 /* Futuristic checkbox */
 .cyber-checkbox {
+  @apply bg-gray-800 text-gray-100 rounded-md shadow-inner focus:ring-blue-500;
   appearance: none;
   width: 18px;
   height: 18px;
@@ -637,12 +783,17 @@
 }
 
 .cyber-tab {
+  border-radius: 6px;
+  padding: 8px 16px;
+  transition: all 0.3s ease-in-out;
   position: relative;
   color: rgba(255, 255, 255, 0.6);
   transition: all 0.3s ease;
 }
 
 .cyber-tab-active {
+  background-color: rgba(100, 116, 139, 0.5);
+  border: 1px solid #4f46e5;
   color: white;
 }
 
@@ -697,6 +848,7 @@
 
 /* Futuristic avatar */
 .cyber-avatar {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   position: relative;
   border: 2px solid transparent;
   background: linear-gradient(45deg, #3b82f6, #ec4899) border-box;
@@ -782,14 +934,17 @@
   background: rgba(15, 15, 25, 0.4);
 }
 
-/* Futuristic card hover effect */
+/* Cyber card styles */
 .cyber-card-hover {
   transition: all 0.3s ease;
 }
 
 .cyber-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 20px rgba(66, 153, 225, 0.2);
+  border-color: rgba(66, 153, 225, 0.3);
 }
 
 /* Futuristic timeline */
@@ -904,3 +1059,74 @@ body {
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Circuit board background */
+.circuit-board {
+  background-color: #000;
+  background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(236, 72, 153, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 2px, transparent 3px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px, 50px 50px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 25px 25px;
+}
+
+/* Holographic effect */
+.holographic {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  transform: skewX(-30deg);
+  animation: holographic-shine 6s ease-in-out infinite;
+}
+
+@keyframes holographic-shine {
+  0% {
+    left: -100%;
+  }
+  20%,
+  100% {
+    left: 100%;
+  }
+}
+
+/* Neon border */
+.neon-border {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.neon-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #3b82f6, #ec4899, #3b82f6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: neon-border-rotate 3s linear infinite;
+}
+
+@keyframes neon-border-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

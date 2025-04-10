@@ -9,12 +9,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar, ChevronRight, Clock, Video, MessageSquare, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { io } from "socket.io-client";
+import Peer from "peerjs";
+
 
 export default function SessionsPage() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
+  const socket = io("http://localhost:5000"); 
+  socket.emit("join-room", { roomId, userId });
+  
   // Fetch user data from localStorage
   useEffect(() => {
     const getUserFromStorage = () => {
@@ -45,7 +50,11 @@ export default function SessionsPage() {
     }
     setIsLoading(false)
   }, [router])
-
+  const peer = new Peer(userId, {
+    host: "localhost",
+    port: 5000,
+    path: "/peerjs",
+  });
   // Mock upcoming sessions
   const upcomingSessions = [
     {
@@ -341,4 +350,3 @@ export default function SessionsPage() {
     </div>
   )
 }
-

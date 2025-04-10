@@ -55,32 +55,50 @@ export default function LoginPage() {
 
   // Update the handleCredentialsSubmit function to store user data in localStorage
   const handleCredentialsSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (!email || !password) {
-      setError("Please enter both email and password")
-      return
+      setError("Please enter both email and password");
+      return;
     }
-
+  
     try {
-      setIsLoading(true)
-      setError("")
-
-      // For demo purposes, we'll simulate a successful login
-      // In a real app, you would make an API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Move to wallet connection step
-      setCredentialsValid(true)
-      setStep(2)
+      setIsLoading(true);
+      setError("");
+  
+      // ✅ Real login API call
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed.");
+      }
+  
+      const { token, userData } = data;
+  
+      if (!token || !userData) {
+        throw new Error("Invalid login response");
+      }
+  
+      // Save token and userData
+      setFullLoginState(userData, token); // <-- assuming this saves to localStorage
+  
+      setCredentialsValid(true);
+      setStep(2); // Continue to wallet connection step
+  
     } catch (err) {
-      console.error("Login Error:", err)
-      setError(err.message || "Login failed. Please try again.")
+      console.error("Login Error:", err);
+      setError(err.message || "Login failed. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
+  
   // Update the connectWallet function to use the new setFullLoginState function
   const connectWallet = async () => {
     if (!isMetaMaskInstalled || !window.ethereum) {

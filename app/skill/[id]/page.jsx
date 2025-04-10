@@ -401,4 +401,3 @@ export default function SkillPage({ params }) {
     </div>
   )
 }
-

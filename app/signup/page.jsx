@@ -1,31 +1,24 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { AlertCircle, Mail, Lock, Wallet, Upload, User, Check, ChevronRight, ChevronLeft } from "lucide-react"
+import { AlertCircle, Mail, Lock, Wallet, Upload, User, Check, ChevronRight, ChevronLeft, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
+import { checkIsLoggedIn } from "@/lib/auth"
+import { setFullLoginState } from "@/lib/auth"
 
 export default function SignupPage() {
   const router = useRouter()
-  const handleSignup = async () => {
-    const response = await fetch("http://localhost:5000/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, skills }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert("Signup successful. IPFS Hash: " + data.ipfsHash);
-    }
-  };
-  
+  const isInitialMount = useRef(true)
+  const [mounted, setMounted] = useState(false)
+
   // Multi-step form state
   const [step, setStep] = useState(1) // 1: Personal Info, 2: Wallet, 3: Skills & Interests
 
@@ -37,17 +30,21 @@ export default function SignupPage() {
   const [selectedSkills, setSelectedSkills] = useState([])
   const [selectedInterests, setSelectedInterests] = useState([])
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [customSkill, setCustomSkill] = useState("")
+  const [customInterest, setCustomInterest] = useState("")
 
   // UI states
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [previewUrl, setPreviewUrl] = useState(null)
 
   // MetaMask connection states
   const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(false)
   const [walletAddress, setWalletAddress] = useState("")
   const [isConnecting, setIsConnecting] = useState(false)
   const [walletConnected, setWalletConnected] = useState(false)
+  const [profilePic, setProfilePic] = useState(null)
 
   // Available skills and interests
   const availableSkills = [
@@ -76,12 +73,24 @@ export default function SignupPage() {
     "Game Development",
   ]
 
-  // Check if MetaMask is installed
+  // Safe initialization
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsMetaMaskInstalled(!!window.ethereum && window.ethereum.isMetaMask)
+    setMounted(true)
+
+    // Check if user is already logged in - only on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+
+      if (checkIsLoggedIn()) {
+        router.push("/dashboard")
+      }
     }
-  }, [])
+
+    // Check if MetaMask is installed
+    if (typeof window !== "undefined" && window.ethereum) {
+      setIsMetaMaskInstalled(window.ethereum.isMetaMask)
+    }
+  }, [router])
 
   // Password strength checker
   const checkPasswordStrength = (password) => {
@@ -102,21 +111,53 @@ export default function SignupPage() {
   }
 
   const toggleSkill = (skill) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter((s) => s !== skill))
-    } else {
+    setSelectedSkills((prevSkills) => {
+      if (prevSkills.includes(skill)) {
+        return prevSkills.filter((s) => s !== skill) // Remove if already selected
+      } else {
+        if (prevSkills.length < 5) {
+          return [...prevSkills, skill] // Add if below limit
+        } else {
+          setError("You can only select up to 5 skills.")
+          return prevSkills
+        }
+      }
+    })
+  }
+
+  const toggleInterest = (interest) => {
+    setSelectedInterests((prevInterests) => {
+      if (prevInterests.includes(interest)) {
+        return prevInterests.filter((i) => i !== interest) // Remove if already selected
+      } else {
+        if (prevInterests.length < 5) {
+          return [...prevInterests, interest] // Add if below limit
+        } else {
+          setError("You can only select up to 5 interests.")
+          return prevInterests
+        }
+      }
+    })
+  }
+
+  const addCustomSkill = () => {
+    if (customSkill && !selectedSkills.includes(customSkill)) {
       if (selectedSkills.length < 5) {
-        setSelectedSkills([...selectedSkills, skill])
+        setSelectedSkills([...selectedSkills, customSkill])
+        setCustomSkill("") // Clear input
+      } else {
+        setError("You can only select up to 5 skills")
       }
     }
   }
 
-  const toggleInterest = (interest) => {
-    if (selectedInterests.includes(interest)) {
-      setSelectedInterests(selectedInterests.filter((i) => i !== interest))
-    } else {
+  const addCustomInterest = () => {
+    if (customInterest && !selectedInterests.includes(customInterest)) {
       if (selectedInterests.length < 5) {
-        setSelectedInterests([...selectedInterests, interest])
+        setSelectedInterests([...selectedInterests, customInterest])
+        setCustomInterest("") // Clear input
+      } else {
+        setError("You can only select up to 5 interests")
       }
     }
   }
@@ -227,8 +268,24 @@ export default function SignupPage() {
     setStep(step - 1)
   }
 
+  // Fix the profile picture upload functionality in the signup page
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Create a preview URL for the selected image
+      const fileReader = new FileReader()
+      fileReader.onload = () => {
+        // Set preview URL for immediate display
+        setPreviewUrl(fileReader.result)
+        setProfilePic(file)
+      }
+      fileReader.readAsDataURL(file)
+    }
+  }
+
+  // Update the handleSubmit function to use the new setFullLoginState function
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
 
     if (!validateStep(3)) {
       return
@@ -241,8 +298,37 @@ export default function SignupPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Redirect after successful signup
-      router.push("/dashboard")
+      // Generate a mock auth token
+      const mockToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+
+      // Create user object
+      const user = {
+        name: fullName,
+        email,
+        walletAddress,
+        skills: selectedSkills,
+        interests: selectedInterests,
+        image: previewUrl || "/placeholder.svg?height=100&width=100",
+        initials: fullName
+          .split(" ")
+          .map((n) => n[0])
+          .join(""),
+        createdAt: new Date().toISOString(),
+      }
+
+      // Use the new function to set all auth data at once
+      setFullLoginState(user, mockToken)
+
+      // Store profile image separately if needed
+      if (previewUrl && typeof window !== "undefined") {
+        localStorage.setItem("userProfileImage", previewUrl)
+      }
+
+      // Use a longer timeout to ensure localStorage operations complete
+      // and use window.location for a full page reload instead of router
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 500)
     } catch (err) {
       setError("An error occurred. Please try again.")
       console.error(err)
@@ -266,6 +352,11 @@ export default function SignupPage() {
 
   const getProgressPercentage = () => {
     return (step / 3) * 100
+  }
+
+  // Don't render until client-side hydration is complete
+  if (!mounted) {
+    return null
   }
 
   return (
@@ -553,11 +644,11 @@ export default function SignupPage() {
                           {availableSkills.map((skill) => (
                             <Badge
                               key={skill}
-                              variant={selectedSkills.includes(skill) ? "default" : "outline"}
-                              className={`cursor-pointer cyber-badge ${
+                              variant="outline"
+                              className={`cursor-pointer cyber-badge transition-all duration-200 ${
                                 selectedSkills.includes(skill)
-                                  ? "bg-gradient-to-r from-blue-600/30 to-blue-500/30 border-blue-500/50"
-                                  : ""
+                                  ? "bg-blue-500 text-white border-blue-700 shadow-md" // Selected color
+                                  : "bg-gray-700 text-gray-300 border-gray-500" // Default color
                               }`}
                               onClick={() => toggleSkill(skill)}
                             >
@@ -565,6 +656,47 @@ export default function SignupPage() {
                             </Badge>
                           ))}
                         </div>
+
+                        {/* Custom skill input */}
+                        <div className="mt-3 flex space-x-2">
+                          <Input
+                            placeholder="Add custom skill..."
+                            value={customSkill}
+                            onChange={(e) => setCustomSkill(e.target.value)}
+                            className="cyber-input"
+                          />
+                          <Button
+                            type="button"
+                            onClick={addCustomSkill}
+                            disabled={!customSkill || selectedSkills.length >= 5}
+                            className="cyber-button"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Selected skills display */}
+                        {selectedSkills.length > 0 && (
+                          <div className="mt-3">
+                            <Label className="text-gray-300">Selected Skills</Label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {selectedSkills.map((skill, index) => (
+                                <Badge
+                                  key={index}
+                                  className="bg-blue-500 text-white border-blue-700 shadow-md flex items-center gap-1 px-3 py-1.5 text-sm whitespace-normal"
+                                >
+                                  {skill}
+                                  <button
+                                    className="ml-1 hover:text-red-200 transition-colors"
+                                    onClick={() => setSelectedSkills(selectedSkills.filter((s) => s !== skill))}
+                                  >
+                                    ×
+                                  </button>
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -573,11 +705,11 @@ export default function SignupPage() {
                           {availableInterests.map((interest) => (
                             <Badge
                               key={interest}
-                              variant={selectedInterests.includes(interest) ? "default" : "outline"}
-                              className={`cursor-pointer cyber-badge ${
+                              variant="outline"
+                              className={`cursor-pointer cyber-badge transition-all duration-200 ${
                                 selectedInterests.includes(interest)
-                                  ? "bg-gradient-to-r from-pink-600/30 to-pink-500/30 border-pink-500/50"
-                                  : ""
+                                  ? "bg-pink-500 text-white border-pink-700 shadow-md" // Selected color
+                                  : "bg-gray-700 text-gray-300 border-gray-500" // Default color
                               }`}
                               onClick={() => toggleInterest(interest)}
                             >
@@ -585,18 +717,78 @@ export default function SignupPage() {
                             </Badge>
                           ))}
                         </div>
+
+                        {/* Custom interest input */}
+                        <div className="mt-3 flex space-x-2">
+                          <Input
+                            placeholder="Add custom interest..."
+                            value={customInterest}
+                            onChange={(e) => setCustomInterest(e.target.value)}
+                            className="cyber-input"
+                          />
+                          <Button
+                            type="button"
+                            onClick={addCustomInterest}
+                            disabled={!customInterest || selectedInterests.length >= 5}
+                            className="cyber-button"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Selected interests display */}
+                        {selectedInterests.length > 0 && (
+                          <div className="mt-3">
+                            <Label className="text-gray-300">Selected Interests</Label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {selectedInterests.map((interest, index) => (
+                                <Badge
+                                  key={index}
+                                  className="bg-pink-500 text-white border-pink-700 shadow-md flex items-center gap-1 px-3 py-1.5 text-sm whitespace-normal"
+                                >
+                                  {interest}
+                                  <button
+                                    className="ml-1 hover:text-red-200 transition-colors"
+                                    onClick={() =>
+                                      setSelectedInterests(selectedInterests.filter((i) => i !== interest))
+                                    }
+                                  >
+                                    ×
+                                  </button>
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="profile-picture" className="text-gray-300">
                           Profile Picture
                         </Label>
-                        <div className="cyber-upload p-6 text-center cursor-pointer">
-                          <Upload className="h-8 w-8 mx-auto text-gray-500 mb-2" />
+                        <div className="cyber-upload p-6 text-center cursor-pointer relative">
+                          <input
+                            type="file"
+                            id="profile-picture"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                          />
+                          {previewUrl ? (
+                            <div className="relative w-24 h-24 mx-auto mb-2 rounded-full overflow-hidden border-2 border-blue-500/30">
+                              <img
+                                src={previewUrl || "/placeholder.svg"}
+                                alt="Profile preview"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <Upload className="h-8 w-8 mx-auto text-gray-500 mb-2" />
+                          )}
                           <p className="text-sm text-gray-500">
-                            Drag and drop an image, or <span className="text-blue-400 font-medium">browse</span>
+                            {previewUrl ? "Change profile picture" : "Drag and drop an image, or"}{" "}
+                            <span className="text-blue-400 font-medium">browse</span>
                           </p>
-                          <input type="file" className="hidden" id="profile-picture" />
                         </div>
                       </div>
 
