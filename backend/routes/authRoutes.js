@@ -161,8 +161,24 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // ✅ Fetch metadata from Pinata using userDataCID
+    let userData = null;
+    try {
+      const pinataURL = `https://gateway.pinata.cloud/ipfs/${user.userDataCID}`;
+      const response = await axios.get(pinataURL);
+      userData = response.data;
+    } catch (pinataErr) {
+      console.error("❌ Failed to fetch user data from Pinata:", pinataErr.message);
+      return res.status(500).json({ error: "Failed to fetch user profile data" });
+    }
+
     console.log("✅ Login Successful:", email);
-    res.json({ message: "Login successful!", token, userDataCID: user.userDataCID });
+    res.json({
+      message: "Login successful!",
+      token,
+      userDataCID: user.userDataCID,
+      userData,
+    });
 
   } catch (error) {
     console.error("❌ Login Error:", error);
